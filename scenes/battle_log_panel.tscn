@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/battle_log_panel.gd" id="1"]
+
+[node name="BattleLogPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(280, 200)
+script = ExtResource("1")
+
+[node name="V" type="VBoxContainer" parent="."]
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="V"]
+horizontal_alignment = 1
+text = "Battle Log"
+
+[node name="Scroll" type="ScrollContainer" parent="V"]
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="LogBox" type="VBoxContainer" parent="V/Scroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 3

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="UnitData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/unit_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+unit_name = "Knight"
+atk = 3
+max_hp = 3
+terrain_affinity = 0
+affinity_bonus = 2
+is_deck_leader = false
+speed = 2

@@ -1,0 +1,288 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/reward_screen.gd" id="1"]
+
+[node name="RewardScreen" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+script = ExtResource("1")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.65)
+mouse_filter = 0
+
+[node name="Center" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 0
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(760, 620)
+
+[node name="V" type="VBoxContainer" parent="Center/Panel"]
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="Center/Panel/V"]
+horizontal_alignment = 1
+text = "Victory!"
+
+[node name="DropsLabel" type="Label" parent="Center/Panel/V"]
+visible = false
+horizontal_alignment = 0
+text = ""
+
+[node name="ToolButtons" type="HBoxContainer" parent="Center/Panel/V"]
+alignment = 1
+theme_override_constants/separation = 12
+
+[node name="ViewDeckButton" type="Button" parent="Center/Panel/V/ToolButtons"]
+custom_minimum_size = Vector2(150, 36)
+text = "View Deck"
+
+[node name="WorkshopButton" type="Button" parent="Center/Panel/V/ToolButtons"]
+custom_minimum_size = Vector2(150, 36)
+text = "Workshop"
+
+[node name="TechTreeButton" type="Button" parent="Center/Panel/V/ToolButtons"]
+custom_minimum_size = Vector2(150, 36)
+text = "Tech Tree"
+
+[node name="LeaderEditorButton" type="Button" parent="Center/Panel/V/ToolButtons"]
+custom_minimum_size = Vector2(150, 36)
+text = "Leader Editor"
+
+[node name="PickBox" type="VBoxContainer" parent="Center/Panel/V"]
+theme_override_constants/separation = 10
+
+[node name="PickLabel" type="Label" parent="Center/Panel/V/PickBox"]
+horizontal_alignment = 1
+text = "Choose your reward:"
+
+[node name="ButtonRow" type="HBoxContainer" parent="Center/Panel/V/PickBox"]
+alignment = 1
+theme_override_constants/separation = 18
+
+[node name="CardsButton" type="Button" parent="Center/Panel/V/PickBox/ButtonRow"]
+custom_minimum_size = Vector2(150, 64)
+text = "Tribute Card"
+
+[node name="TechButton" type="Button" parent="Center/Panel/V/PickBox/ButtonRow"]
+custom_minimum_size = Vector2(150, 64)
+text = "Tech Point +1"
+
+[node name="ResourcesButton" type="Button" parent="Center/Panel/V/PickBox/ButtonRow"]
+custom_minimum_size = Vector2(150, 64)
+text = "Rare Resource"
+
+[node name="TributeBox" type="VBoxContainer" parent="Center/Panel/V"]
+visible = false
+theme_override_constants/separation = 10
+
+[node name="TributeLabel" type="Label" parent="Center/Panel/V/TributeBox"]
+horizontal_alignment = 1
+text = "Pick a card from their deck:"
+
+[node name="CardsRow" type="HBoxContainer" parent="Center/Panel/V/TributeBox"]
+alignment = 1
+theme_override_constants/separation = 18
+
+[node name="ResourcesBox" type="VBoxContainer" parent="Center/Panel/V"]
+visible = false
+theme_override_constants/separation = 10
+
+[node name="ResourcesLabel" type="Label" parent="Center/Panel/V/ResourcesBox"]
+horizontal_alignment = 1
+text = "Pick a rare resource (gain +2):"
+
+[node name="ButtonRow" type="HBoxContainer" parent="Center/Panel/V/ResourcesBox"]
+alignment = 1
+theme_override_constants/separation = 18
+
+[node name="CrystalButton" type="Button" parent="Center/Panel/V/ResourcesBox/ButtonRow"]
+custom_minimum_size = Vector2(150, 60)
+text = "Crystal +2"
+
+[node name="SoulButton" type="Button" parent="Center/Panel/V/ResourcesBox/ButtonRow"]
+custom_minimum_size = Vector2(150, 60)
+text = "Soul +2"
+
+[node name="DeckBox" type="VBoxContainer" parent="Center/Panel/V"]
+visible = false
+theme_override_constants/separation = 10
+
+[node name="DeckLabel" type="Label" parent="Center/Panel/V/DeckBox"]
+horizontal_alignment = 1
+text = "Your deck:"
+
+[node name="Scroll" type="ScrollContainer" parent="Center/Panel/V/DeckBox"]
+custom_minimum_size = Vector2(700, 400)
+
+[node name="Grid" type="GridContainer" parent="Center/Panel/V/DeckBox/Scroll"]
+columns = 5
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="BackButton" type="Button" parent="Center/Panel/V/DeckBox"]
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(160, 40)
+text = "Back"
+
+[node name="WorkshopBox" type="VBoxContainer" parent="Center/Panel/V"]
+visible = false
+theme_override_constants/separation = 10
+
+[node name="WorkshopLabel" type="Label" parent="Center/Panel/V/WorkshopBox"]
+horizontal_alignment = 1
+text = "Workshop — spend resources to craft cards:"
+
+[node name="Scroll" type="ScrollContainer" parent="Center/Panel/V/WorkshopBox"]
+custom_minimum_size = Vector2(700, 400)
+
+[node name="RecipeList" type="VBoxContainer" parent="Center/Panel/V/WorkshopBox/Scroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="BackButton" type="Button" parent="Center/Panel/V/WorkshopBox"]
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(160, 40)
+text = "Back"
+
+[node name="TechTreeBox" type="VBoxContainer" parent="Center/Panel/V"]
+visible = false
+theme_override_constants/separation = 10
+
+[node name="HeaderLabel" type="Label" parent="Center/Panel/V/TechTreeBox"]
+horizontal_alignment = 1
+text = "Tech Tree"
+
+[node name="ColumnsRow" type="HBoxContainer" parent="Center/Panel/V/TechTreeBox"]
+alignment = 1
+theme_override_constants/separation = 32
+
+[node name="EconomyColumn" type="VBoxContainer" parent="Center/Panel/V/TechTreeBox/ColumnsRow"]
+theme_override_constants/separation = 10
+
+[node name="EconomyHeader" type="Label" parent="Center/Panel/V/TechTreeBox/ColumnsRow/EconomyColumn"]
+horizontal_alignment = 1
+text = "Economy"
+
+[node name="CombatColumn" type="VBoxContainer" parent="Center/Panel/V/TechTreeBox/ColumnsRow"]
+theme_override_constants/separation = 10
+
+[node name="CombatHeader" type="Label" parent="Center/Panel/V/TechTreeBox/ColumnsRow/CombatColumn"]
+horizontal_alignment = 1
+text = "Combat"
+
+[node name="BackButton" type="Button" parent="Center/Panel/V/TechTreeBox"]
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(160, 40)
+text = "Back"
+
+[node name="LeaderEditorBox" type="VBoxContainer" parent="Center/Panel/V"]
+visible = false
+theme_override_constants/separation = 10
+
+[node name="LeaderEditorLabel" type="Label" parent="Center/Panel/V/LeaderEditorBox"]
+horizontal_alignment = 1
+text = "Leader Editor — click a side, then cycle to change it."
+
+[node name="PickerHost" type="CenterContainer" parent="Center/Panel/V/LeaderEditorBox"]
+
+[node name="SelectionLabel" type="Label" parent="Center/Panel/V/LeaderEditorBox"]
+horizontal_alignment = 1
+text = "Front: None"
+
+[node name="CycleButton" type="Button" parent="Center/Panel/V/LeaderEditorBox"]
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(220, 36)
+text = "Cycle Upgrade"
+
+[node name="LoadoutHeader" type="Label" parent="Center/Panel/V/LeaderEditorBox"]
+horizontal_alignment = 1
+text = "— Crew & Cargo —"
+
+[node name="FirstMateRow" type="HBoxContainer" parent="Center/Panel/V/LeaderEditorBox"]
+alignment = 1
+theme_override_constants/separation = 12
+
+[node name="FirstMateLabel" type="Label" parent="Center/Panel/V/LeaderEditorBox/FirstMateRow"]
+custom_minimum_size = Vector2(160, 0)
+text = "First Mate (unit):"
+
+[node name="FirstMateOption" type="OptionButton" parent="Center/Panel/V/LeaderEditorBox/FirstMateRow"]
+custom_minimum_size = Vector2(260, 32)
+
+[node name="CargoRow" type="HBoxContainer" parent="Center/Panel/V/LeaderEditorBox"]
+alignment = 1
+theme_override_constants/separation = 12
+
+[node name="CargoLabel" type="Label" parent="Center/Panel/V/LeaderEditorBox/CargoRow"]
+custom_minimum_size = Vector2(160, 0)
+text = "Priority Cargo (spell):"
+
+[node name="CargoOption" type="OptionButton" parent="Center/Panel/V/LeaderEditorBox/CargoRow"]
+custom_minimum_size = Vector2(260, 32)
+
+[node name="StatsHeader" type="Label" parent="Center/Panel/V/LeaderEditorBox"]
+horizontal_alignment = 1
+text = "— Stats —"
+
+[node name="HandSizeRow" type="HBoxContainer" parent="Center/Panel/V/LeaderEditorBox"]
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="HandSizeLabel" type="Label" parent="Center/Panel/V/LeaderEditorBox/HandSizeRow"]
+custom_minimum_size = Vector2(260, 0)
+text = "Hand Size: -"
+
+[node name="HandSizeMinus" type="Button" parent="Center/Panel/V/LeaderEditorBox/HandSizeRow"]
+custom_minimum_size = Vector2(36, 32)
+text = "-"
+
+[node name="HandSizePlus" type="Button" parent="Center/Panel/V/LeaderEditorBox/HandSizeRow"]
+custom_minimum_size = Vector2(36, 32)
+text = "+"
+
+[node name="EnergyRow" type="HBoxContainer" parent="Center/Panel/V/LeaderEditorBox"]
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="EnergyLabel" type="Label" parent="Center/Panel/V/LeaderEditorBox/EnergyRow"]
+custom_minimum_size = Vector2(260, 0)
+text = "Energy/Turn: -"
+
+[node name="EnergyMinus" type="Button" parent="Center/Panel/V/LeaderEditorBox/EnergyRow"]
+custom_minimum_size = Vector2(36, 32)
+text = "-"
+
+[node name="EnergyPlus" type="Button" parent="Center/Panel/V/LeaderEditorBox/EnergyRow"]
+custom_minimum_size = Vector2(36, 32)
+text = "+"
+
+[node name="BackButton" type="Button" parent="Center/Panel/V/LeaderEditorBox"]
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(160, 40)
+text = "Back"
+
+[node name="DoneMessage" type="Label" parent="Center/Panel/V"]
+visible = false
+horizontal_alignment = 1
+text = ""
+
+[node name="NextBattleButton" type="Button" parent="Center/Panel/V"]
+visible = false
+custom_minimum_size = Vector2(200, 50)
+size_flags_horizontal = 4
+text = "Next Battle"
+
+[node name="RestartButton" type="Button" parent="Center/Panel/V"]
+visible = false
+custom_minimum_size = Vector2(200, 50)
+size_flags_horizontal = 4
+text = "Restart Run"

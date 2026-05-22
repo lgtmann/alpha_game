@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/leader_info_panel.gd" id="1"]
+
+[node name="LeaderInfoPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(280, 170)
+script = ExtResource("1")
+
+[node name="V" type="VBoxContainer" parent="."]
+theme_override_constants/separation = 4
+
+[node name="HeaderLabel" type="Label" parent="V"]
+text = "LEADER:"
+theme_override_font_sizes/font_size = 13
+
+[node name="StatsLabel" type="Label" parent="V"]
+text = ""
+
+[node name="AbilitiesLabel" type="Label" parent="V"]
+visible = false
+text = ""
+autowrap_mode = 3
