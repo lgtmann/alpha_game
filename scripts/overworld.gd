@@ -2,64 +2,59 @@ class_name Overworld
 extends Node2D
 
 signal battle_requested(enc_idx: int)
+signal door_requested(dest_level_id: String)
 
 const TILE_SIZE: int = 48
 const MAP_W: int = 30
 const MAP_H: int = 22
 const MOVE_COOLDOWN: float = 0.15
 
-const T_GRASS: int = 0
-const T_PATH: int = 1
-const T_TREE: int = 2
-const T_WATER: int = 3
+# Cave tileset: res://art/tiles/cave_tileset.png
+# Sheet is 320×224 px — 10 cols × 7 rows of 32×32 tiles.
+# Tweak these Rect2s if the visible tiles look wrong in-game.
+const _CAVE_TEX := preload("res://art/tiles/cave_tileset.png")
+const _R_FLOOR: Rect2 = Rect2(0,  128, 32, 32)   # row 4 col 0 — dark cave floor
+const _R_WALL:  Rect2 = Rect2(32,   0, 32, 32)   # row 0 col 1 — log/rock wall
+# Water reuses the floor region with a blue modulate (see _draw).
 
-const TILE_COLORS: Array[Color] = [
-	Color("#5a8c3c"),
-	Color("#c8a860"),
-	Color("#2a5418"),
-	Color("#3a78b5"),
-]
-
-# NPC positions paired with encounter names, indexed by encounter order.
-const NPC_DEFS: Array[Dictionary] = [
-	{pos = Vector2i(11, 17), name = "Dark Lord"},
-	{pos = Vector2i(11, 14), name = "Forest Warden"},
-	{pos = Vector2i(25, 8),  name = "Sea Witch"},
-	{pos = Vector2i(4, 6),   name = "Stone Lord"},
-	{pos = Vector2i(11, 3),  name = "Champion"},
-]
-
-var _map: Array = []
+var _level_data: LevelData = null
+var _map: Array = []              # alias of _level_data.tiles for fast access
 var _player: OverworldPlayer = null
 var _npcs: Array[OverworldNpc] = []
 var _run_state: RunState = null
 var _move_timer: float = 0.0
 
+
 func _ready() -> void:
-	_build_map()
+	_level_data = Level0.create()
+	_map = _level_data.tiles
 	_player = OverworldPlayer.new()
+	_player.tile_pos = _level_data.player_spawn
 	add_child(_player)
+
 
 func initialize(rs: RunState) -> void:
 	_run_state = rs
 	refresh_npcs()
+
 
 func refresh_npcs() -> void:
 	for n: OverworldNpc in _npcs:
 		if is_instance_valid(n):
 			n.queue_free()
 	_npcs.clear()
-	if _run_state == null:
+	if _run_state == null or _level_data == null:
 		return
-	var enc_count: int = mini(NPC_DEFS.size(), _run_state.encounters.size())
+	var enc_count: int = mini(_level_data.npc_defs.size(), _run_state.encounters.size())
 	for i in range(enc_count):
-		var def: Dictionary = NPC_DEFS[i]
+		var def: Dictionary = _level_data.npc_defs[i]
 		var npc := OverworldNpc.new()
 		add_child(npc)
-		npc.setup(def["pos"], def["name"], i)
-		if i < _run_state.encounter_index:
+		npc.setup(def["pos"], def["name"], def["enc_idx"])
+		if def["enc_idx"] < _run_state.encounter_index:
 			npc.mark_defeated()
 		_npcs.append(npc)
+
 
 func _process(delta: float) -> void:
 	if not is_visible_in_tree() or _player == null or _player.is_moving():
@@ -78,18 +73,27 @@ func _process(delta: float) -> void:
 	else:
 		_try_interact(target)
 
+
 func _get_input_dir() -> Vector2i:
-	if Input.is_action_pressed("ui_left") or Input.is_key_pressed(KEY_A):
+	if Input.is_action_pressed("ui_left")  or Input.is_key_pressed(KEY_A):
 		return Vector2i(-1, 0)
 	if Input.is_action_pressed("ui_right") or Input.is_key_pressed(KEY_D):
 		return Vector2i(1, 0)
-	if Input.is_action_pressed("ui_up") or Input.is_key_pressed(KEY_W):
+	if Input.is_action_pressed("ui_up")    or Input.is_key_pressed(KEY_W):
 		return Vector2i(0, -1)
-	if Input.is_action_pressed("ui_down") or Input.is_key_pressed(KEY_S):
+	if Input.is_action_pressed("ui_down")  or Input.is_key_pressed(KEY_S):
 		return Vector2i(0, 1)
 	return Vector2i.ZERO
 
+
 func _try_interact(tile: Vector2i) -> void:
+	# Door check first.
+	if _level_data != null:
+		for door: Dictionary in _level_data.door_defs:
+			if door["pos"] == tile:
+				door_requested.emit(door["dest"])
+				return
+	# NPC check.
 	if _run_state == null:
 		return
 	for npc: OverworldNpc in _npcs:
@@ -99,74 +103,60 @@ func _try_interact(tile: Vector2i) -> void:
 			battle_requested.emit(npc.encounter_index)
 			return
 
+
 func _is_walkable(tile: Vector2i) -> bool:
 	if tile.x < 0 or tile.x >= MAP_W or tile.y < 0 or tile.y >= MAP_H:
 		return false
 	var t: int = _get_tile(tile)
-	if t == T_TREE or t == T_WATER:
+	if t == LevelData.T_WALL or t == LevelData.T_WATER or t == LevelData.T_DOOR:
 		return false
 	for npc: OverworldNpc in _npcs:
 		if is_instance_valid(npc) and not npc.defeated and npc.tile_pos == tile:
 			return false
 	return true
 
+
 func _get_tile(tile: Vector2i) -> int:
 	if tile.y < 0 or tile.y >= _map.size():
-		return T_TREE
+		return LevelData.T_WALL
 	var row: Array = _map[tile.y]
 	if tile.x < 0 or tile.x >= row.size():
-		return T_TREE
+		return LevelData.T_WALL
 	return row[tile.x]
 
+
 func _draw() -> void:
+	if _map.is_empty():
+		return
 	for y in range(MAP_H):
 		for x in range(MAP_W):
 			var t: int = _get_tile(Vector2i(x, y))
-			draw_rect(Rect2(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE), TILE_COLORS[t])
-			draw_rect(Rect2(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE),
-					  Color(0.0, 0.0, 0.0, 0.12), false, 1.0)
+			var dest: Rect2 = Rect2(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+			match t:
+				LevelData.T_FLOOR:
+					draw_texture_rect_region(_CAVE_TEX, dest, _R_FLOOR)
+				LevelData.T_WALL:
+					draw_texture_rect_region(_CAVE_TEX, dest, _R_WALL)
+				LevelData.T_WATER:
+					# Reuse floor texture with a blue tint for the underground pool.
+					draw_texture_rect_region(_CAVE_TEX, dest, _R_FLOOR,
+							Color(0.28, 0.48, 0.88, 1.0))
+				LevelData.T_DOOR:
+					draw_texture_rect_region(_CAVE_TEX, dest, _R_FLOOR)
+					draw_rect(dest, Color(1.0, 0.82, 0.44, 0.35), true)
+					draw_rect(dest, Color("#ffd070"), false, 2.0)
+			# Very faint grid lines to help with orientation.
+			draw_rect(dest, Color(0.0, 0.0, 0.0, 0.06), false, 1.0)
 
-func _build_map() -> void:
-	_map.clear()
-	for y in range(MAP_H):
-		var row: Array = []
-		for x in range(MAP_W):
-			row.append(T_GRASS)
-		_map.append(row)
-	# Border trees
-	for x in range(MAP_W):
-		_set_tile(x, 0, T_TREE)
-		_set_tile(x, MAP_H - 1, T_TREE)
-	for y in range(MAP_H):
-		_set_tile(0, y, T_TREE)
-		_set_tile(MAP_W - 1, y, T_TREE)
-	# Main vertical path x=11
-	for y in range(1, MAP_H - 1):
-		_set_tile(11, y, T_PATH)
-	# Horizontal crossroads y=10
-	for x in range(1, MAP_W - 1):
-		_set_tile(x, 10, T_PATH)
-	# East branch to Sea Witch: x=25, y=8-10
-	for y in range(8, 11):
-		_set_tile(25, y, T_PATH)
-	# West branch to Stone Lord: x=4, y=6-10
-	for y in range(6, 11):
-		_set_tile(4, y, T_PATH)
-	# Water feature: x=1-3, y=12-17
-	_fill_rect(1, 12, 3, 6, T_WATER)
-	# NW forest: x=5-9, y=1-5
-	_fill_rect(5, 1, 5, 5, T_TREE)
-	# NE forest: x=14-20, y=1-4
-	_fill_rect(14, 1, 7, 4, T_TREE)
-	# SE forest: x=15-22, y=14-18
-	_fill_rect(15, 14, 8, 5, T_TREE)
-
-func _fill_rect(x: int, y: int, w: int, h: int, tile_type: int) -> void:
-	for dy in range(h):
-		for dx in range(w):
-			_set_tile(x + dx, y + dy, tile_type)
-
-func _set_tile(x: int, y: int, t: int) -> void:
-	if y < 0 or y >= _map.size() or x < 0 or x >= MAP_W:
+	# Door destination labels drawn over door tiles.
+	if _level_data == null:
 		return
-	_map[y][x] = t
+	var font: Font = ThemeDB.fallback_font
+	if font == null:
+		return
+	for door: Dictionary in _level_data.door_defs:
+		var dp: Vector2i = door["pos"]
+		var lx: float = dp.x * TILE_SIZE + 4.0
+		var ly: float = dp.y * TILE_SIZE + TILE_SIZE * 0.68
+		draw_string(font, Vector2(lx, ly), door["label"],
+				HORIZONTAL_ALIGNMENT_LEFT, float(TILE_SIZE - 4), 9, Color("#ffd070"))

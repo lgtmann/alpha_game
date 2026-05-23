@@ -102,16 +102,36 @@ Effects: `SpawnUnitEffect`, `SetTerrainEffect`, `WeaponEffect`, `FireballEffect`
 - Tech tree: Economy branch (extra_draw → energy_surge → bigger_hand) and Combat branch (sharpened_blades → reinforced_armor → terrain_mastery)
 - `first_mate` (unit card) and `priority_cargo` (spell/weapon card) are pre-placed in opening hand each battle
 
-## Overworld map
+## Overworld map & level system
 
-30 × 22 tiles, `TILE_SIZE = 48`. Tile types: GRASS / PATH / TREE (impassable) / WATER (impassable).  
-NPC positions (encounter order):  
-- enc0 Dark Lord — (11, 17)  
-- enc1 Forest Warden — (11, 14)  
-- enc2 Sea Witch — (25, 8)  
-- enc3 Stone Lord — (4, 6)  
-- enc4 Champion — (11, 3)  
+30 × 22 tiles, `TILE_SIZE = 48`. Tile types defined in `LevelData` constants:
+`T_FLOOR=0 / T_WALL=1 / T_DOOR=2 / T_WATER=3`
+
+Each level is a factory script in `scripts/levels/` that returns a `LevelData` (RefCounted).
+Currently only `Level0` exists (`scripts/levels/level_0.gd`).
+`Overworld._ready()` calls `Level0.create()` and stores it in `_level_data`.
+
+Tileset: `res://art/tiles/cave_tileset.png` (320×224, 32×32 tiles, 10 cols × 7 rows).
+Rendered in `Overworld._draw()` via `draw_texture_rect_region()` — tiles scale from 32→48 px.
+
+Level 0 layout:
+- Main N–S corridor at x=11, E–W crossroads at y=10
+- East spur x=25 y=8-10 (Sea Witch); west spur x=4 y=6-10 (Stone Lord)
+- Underground pool x=1-3 y=12-17 (T_WATER, impassable)
+- 3 door tiles at y=0: (11,0)→"1.1", (25,0)→"1.2", (4,0)→"1.3"
+
+NPC positions (encounter order):
+- enc0 Dark Lord — (11, 17)
+- enc1 Forest Warden — (11, 14)
+- enc2 Sea Witch — (25, 8)
+- enc3 Stone Lord — (4, 6)
+- enc4 Champion — (11, 3)
+
 Player starts at (11, 19). Walking into an NPC tile triggers `battle_requested(enc_idx)`.
+Walking into a door tile triggers `door_requested(dest_level_id)`.
+
+**Adding a new level**: Create `scripts/levels/level_N.gd` with `class_name LevelN`,
+add a `static func create() -> LevelData` factory, wire it in `game_root._on_door_requested()`.
 
 ## Common gotchas
 
