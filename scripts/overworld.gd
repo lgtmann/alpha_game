@@ -3,6 +3,7 @@ extends Node2D
 
 signal battle_requested(enc_idx: int)
 signal door_requested(dest_level_id: String)
+signal shop_requested
 
 const TILE_SIZE: int = 48
 const MAP_W: int = 30
@@ -21,6 +22,7 @@ var _level_data: LevelData = null
 var _map: Array = []              # alias of _level_data.tiles for fast access
 var _player: OverworldPlayer = null
 var _npcs: Array[OverworldNpc] = []
+var _salesmen: Array[OverworldSalesman] = []
 var _run_state: RunState = null
 var _move_timer: float = 0.0
 
@@ -31,6 +33,17 @@ func _ready() -> void:
 	_player = OverworldPlayer.new()
 	_player.tile_pos = _level_data.player_spawn
 	add_child(_player)
+	_spawn_salesmen()
+
+
+func _spawn_salesmen() -> void:
+	if _level_data == null:
+		return
+	for def: Dictionary in _level_data.salesman_defs:
+		var s := OverworldSalesman.new()
+		add_child(s)
+		s.setup(def["pos"], def["name"])
+		_salesmen.append(s)
 
 
 func initialize(rs: RunState) -> void:
@@ -87,13 +100,18 @@ func _get_input_dir() -> Vector2i:
 
 
 func _try_interact(tile: Vector2i) -> void:
-	# Door check first.
+	# Door check.
 	if _level_data != null:
 		for door: Dictionary in _level_data.door_defs:
 			if door["pos"] == tile:
 				door_requested.emit(door["dest"])
 				return
-	# NPC check.
+	# Salesman check.
+	for s: OverworldSalesman in _salesmen:
+		if is_instance_valid(s) and s.tile_pos == tile:
+			shop_requested.emit()
+			return
+	# Enemy NPC check.
 	if _run_state == null:
 		return
 	for npc: OverworldNpc in _npcs:
@@ -112,6 +130,9 @@ func _is_walkable(tile: Vector2i) -> bool:
 		return false
 	for npc: OverworldNpc in _npcs:
 		if is_instance_valid(npc) and not npc.defeated and npc.tile_pos == tile:
+			return false
+	for s: OverworldSalesman in _salesmen:
+		if is_instance_valid(s) and s.tile_pos == tile:
 			return false
 	return true
 

@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/game_root.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/main.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/overworld.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/shop_screen.tscn" id="4"]
 
 [node name="GameRoot" type="Node"]
 script = ExtResource("1")
@@ -17,3 +18,10 @@ visible = false
 [node name="OverworldLayer" type="Node2D" parent="."]
 
 [node name="Overworld" parent="OverworldLayer" instance=ExtResource("3")]
+
+[node name="ShopLayer" type="CanvasLayer" parent="."]
+layer = 11
+follow_viewport = false
+visible = false
+
+[node name="ShopScreen" parent="ShopLayer" instance=ExtResource("4")]

@@ -22,6 +22,12 @@ static func create() -> LevelData:
 		{pos = Vector2i(11, 3),  name = "Champion",      enc_idx = 4},
 	]
 
+	# Merchant — east of the main corridor, near the player spawn.
+	# (14, 17) is just outside the SE rock cluster (which starts at x=15).
+	d.salesman_defs = [
+		{pos = Vector2i(14, 17), name = "Merchant"},
+	]
+
 	# Doors cut into the north wall, above the three main corridors.
 	# dest matches the level_id of the destination level.
 	d.door_defs = [
