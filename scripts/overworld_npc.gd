@@ -2,7 +2,7 @@ class_name OverworldNpc
 extends Node2D
 
 const TILE_SIZE: int = 48
-const ANIM_FPS: float = 6.0
+const ANIM_FPS: float = 6.0 / PACE_MOVE_TIME
 const SPRITE_SCALE: float = 0.10
 
 # Row in robot_walk.png that gives the best side-profile walk.
@@ -16,6 +16,7 @@ const FRAME_COUNT: int = 6
 # Pacing behaviour
 const PACE_MOVE_TIME: float  = 0.45   # seconds to cross one tile
 const PACE_PAUSE_TIME: float = 1.0    # seconds to wait at each end
+# One full leg cycle per tile crossed  →  FRAME_COUNT / PACE_MOVE_TIME ≈ 13.3
 
 const _TEX := preload("res://art/robot_walk.png")
 
