@@ -5,21 +5,21 @@ signal battle_requested(enc_idx: int)
 signal door_requested(dest_level_id: String)
 signal shop_requested
 
+# ── Two-layer tilemap ──────────────────────────────────────────────────────
+# TileMapFloor  (z=-2): paint ANY tile here  → the cell is walkable floor.
+# TileMapWalls  (z=-1): paint ANY tile here  → the cell is impassable.
+# A cell without a floor tile is also impassable (e.g. the empty edge).
+# Door tiles must NOT have a floor tile (or must have a wall tile on top)
+# so that bumping into them triggers _try_interact() instead of walking through.
+# ──────────────────────────────────────────────────────────────────────────
+
 const TILE_SIZE: int = 48
-const MAP_W: int = 30
-const MAP_H: int = 22
 const MOVE_COOLDOWN: float = 0.15
 
-# Cave tileset: res://art/tiles/cave_tileset.png
-# Sheet is 320×224 px — 10 cols × 7 rows of 32×32 tiles.
-# Tweak these Rect2s if the visible tiles look wrong in-game.
-const _CAVE_TEX := preload("res://art/tiles/cave_tileset.png")
-const _R_FLOOR: Rect2 = Rect2(0,  128, 32, 32)   # row 4 col 0 — dark cave floor
-const _R_WALL:  Rect2 = Rect2(32,   0, 32, 32)   # row 0 col 1 — log/rock wall
-# Water reuses the floor region with a blue modulate (see _draw).
+@onready var _floor_map: TileMapLayer = $TileMapFloor
+@onready var _wall_map:  TileMapLayer = $TileMapWalls
 
 var _level_data: LevelData = null
-var _map: Array = []              # alias of _level_data.tiles for fast access
 var _player: OverworldPlayer = null
 var _npcs: Array[OverworldNpc] = []
 var _salesmen: Array[OverworldSalesman] = []
@@ -29,7 +29,6 @@ var _move_timer: float = 0.0
 
 func _ready() -> void:
 	_level_data = Level0.create()
-	_map = _level_data.tiles
 	_player = OverworldPlayer.new()
 	_player.tile_pos = _level_data.player_spawn
 	add_child(_player)
@@ -123,11 +122,18 @@ func _try_interact(tile: Vector2i) -> void:
 
 
 func _is_walkable(tile: Vector2i) -> bool:
-	if tile.x < 0 or tile.x >= MAP_W or tile.y < 0 or tile.y >= MAP_H:
+	# No floor tile → empty space, out of bounds, or unpainted.
+	if _floor_map == null or _floor_map.get_cell_source_id(tile) == -1:
 		return false
-	var t: int = _get_tile(tile)
-	if t == LevelData.T_WALL or t == LevelData.T_WATER or t == LevelData.T_DOOR:
+	# Wall tile overrides floor → impassable rock/obstacle.
+	if _wall_map != null and _wall_map.get_cell_source_id(tile) != -1:
 		return false
+	# Door positions are always impassable (player bumps to trigger them).
+	if _level_data != null:
+		for door: Dictionary in _level_data.door_defs:
+			if door["pos"] == tile:
+				return false
+	# Entity blocking.
 	for npc: OverworldNpc in _npcs:
 		if is_instance_valid(npc) and not npc.defeated and npc.tile_pos == tile:
 			return false
@@ -135,49 +141,3 @@ func _is_walkable(tile: Vector2i) -> bool:
 		if is_instance_valid(s) and s.tile_pos == tile:
 			return false
 	return true
-
-
-func _get_tile(tile: Vector2i) -> int:
-	if tile.y < 0 or tile.y >= _map.size():
-		return LevelData.T_WALL
-	var row: Array = _map[tile.y]
-	if tile.x < 0 or tile.x >= row.size():
-		return LevelData.T_WALL
-	return row[tile.x]
-
-
-func _draw() -> void:
-	if _map.is_empty():
-		return
-	for y in range(MAP_H):
-		for x in range(MAP_W):
-			var t: int = _get_tile(Vector2i(x, y))
-			var dest: Rect2 = Rect2(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-			match t:
-				LevelData.T_FLOOR:
-					draw_texture_rect_region(_CAVE_TEX, dest, _R_FLOOR)
-				LevelData.T_WALL:
-					draw_texture_rect_region(_CAVE_TEX, dest, _R_WALL)
-				LevelData.T_WATER:
-					# Reuse floor texture with a blue tint for the underground pool.
-					draw_texture_rect_region(_CAVE_TEX, dest, _R_FLOOR,
-							Color(0.28, 0.48, 0.88, 1.0))
-				LevelData.T_DOOR:
-					draw_texture_rect_region(_CAVE_TEX, dest, _R_FLOOR)
-					draw_rect(dest, Color(1.0, 0.82, 0.44, 0.35), true)
-					draw_rect(dest, Color("#ffd070"), false, 2.0)
-			# Very faint grid lines to help with orientation.
-			draw_rect(dest, Color(0.0, 0.0, 0.0, 0.06), false, 1.0)
-
-	# Door destination labels drawn over door tiles.
-	if _level_data == null:
-		return
-	var font: Font = ThemeDB.fallback_font
-	if font == null:
-		return
-	for door: Dictionary in _level_data.door_defs:
-		var dp: Vector2i = door["pos"]
-		var lx: float = dp.x * TILE_SIZE + 4.0
-		var ly: float = dp.y * TILE_SIZE + TILE_SIZE * 0.68
-		draw_string(font, Vector2(lx, ly), door["label"],
-				HORIZONTAL_ALIGNMENT_LEFT, float(TILE_SIZE - 4), 9, Color("#ffd070"))
