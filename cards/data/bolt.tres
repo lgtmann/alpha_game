@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="CardData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://ca5241o7vktr8"]
 
-[ext_resource type="Script" path="res://scripts/card_data.gd" id="1"]
-[ext_resource type="Script" path="res://effects/weapon_effect.gd" id="2"]
+[ext_resource type="Script" uid="uid://djyjwu1bdfjv7" path="res://scripts/card_data.gd" id="1"]
+[ext_resource type="Script" uid="uid://2phtndonjcji" path="res://effects/weapon_effect.gd" id="2"]
 
 [sub_resource type="Resource" id="effect"]
 script = ExtResource("2")

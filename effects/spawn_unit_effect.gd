@@ -20,7 +20,7 @@ func can_target(board, tile: Vector2i) -> bool:
 	var gs: GameState = board.game_state
 	if gs != null:
 		owner_id = gs.current_player
-		# Communication channels — leader-driven cap on friendly units.
+		# Communication channels — laadwwadwadseader-driven cap on friendly units.
 		var cap: int = gs.max_units if owner_id == GameState.PLAYER else gs.enemy_max_units
 		if board.count_units(owner_id) >= cap:
 			return false

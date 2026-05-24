@@ -1,16 +1,14 @@
-[gd_resource type="Resource" script_class="CardData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://bqt32oobnmrdc"]
 
-[ext_resource type="Script" path="res://scripts/card_data.gd" id="1"]
-[ext_resource type="Script" path="res://effects/weapon_effect.gd" id="2"]
+[ext_resource type="Script" uid="uid://djyjwu1bdfjv7" path="res://scripts/card_data.gd" id="1"]
+[ext_resource type="Script" uid="uid://2phtndonjcji" path="res://effects/weapon_effect.gd" id="2"]
 
 [sub_resource type="Resource" id="effect"]
 script = ExtResource("2")
-attack = 3
 range_ = 1
 
 [resource]
 script = ExtResource("1")
 card_name = "Quick Strike"
 description = "A swift jab at an adjacent foe."
-cost = 1
 effect = SubResource("effect")

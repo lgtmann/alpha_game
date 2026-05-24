@@ -1,13 +1,14 @@
-[gd_resource type="Resource" script_class="UnitData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://vigoxqxb4dws"]
 
-[ext_resource type="Script" path="res://scripts/unit_data.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/abilities/terrain_step_ability.gd" id="2"]
+[ext_resource type="Script" uid="uid://ui75ekpfjijx" path="res://scripts/unit_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/leader_ability.gd" id="1_og5ok"]
+[ext_resource type="Script" uid="uid://bxidn3k8th6an" path="res://scripts/abilities/terrain_step_ability.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/side_upgrade.gd" id="4_sxgkl"]
 
 [sub_resource type="Resource" id="aquatic"]
 script = ExtResource("2")
 ability_name = "Aquatic"
 description = "Tiles under the Sea Witch become water when she moves."
-terrain_id = 2
 
 [resource]
 script = ExtResource("1")
@@ -18,4 +19,4 @@ terrain_affinity = 2
 affinity_bonus = 2
 is_deck_leader = true
 attack_range = 2
-leader_abilities = Array[LeaderAbility]([SubResource("aquatic")])
+leader_abilities = Array[ExtResource("1_og5ok")]([SubResource("aquatic")])

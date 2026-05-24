@@ -1,6 +1,7 @@
 extends Control
 
 signal returned_to_overworld
+signal run_restarted
 
 const FOREST_CARD := preload("res://cards/data/forest.tres")
 const WATER_CARD := preload("res://cards/data/water.tres")
@@ -22,6 +23,9 @@ const FOREST_WARDEN_DATA := preload("res://units/data/forest_warden.tres")
 const SEA_WITCH_DATA := preload("res://units/data/sea_witch.tres")
 const STONE_LORD_DATA := preload("res://units/data/stone_lord.tres")
 const CHAMPION_DATA := preload("res://units/data/champion.tres")
+
+var is_peer_battle: bool      = false
+var last_battle_winner: int   = -1
 
 @onready var board: Board = $VBox/TopRow/BoardContainer/Board
 @onready var hand: Hand = $VBox/HBoxBottom/Hand
@@ -256,6 +260,7 @@ func _start_encounter(enc: EncounterData) -> void:
 	game_state.start_game(run_state.player_deck.duplicate())
 
 func _on_game_ended(winner: int) -> void:
+	last_battle_winner = winner
 	if winner == GameState.PLAYER:
 		var enc := run_state.current_encounter()
 		var enemy_deck: Array[CardData] = []
@@ -266,12 +271,28 @@ func _on_game_ended(winner: int) -> void:
 		reward_screen.show_defeat()
 
 func _on_next_battle() -> void:
-	run_state.advance_encounter()
+	if not is_peer_battle:
+		run_state.advance_encounter()
+	is_peer_battle = false
 	returned_to_overworld.emit()
 
 func _on_restart_run() -> void:
+	is_peer_battle = false
+	last_battle_winner = -1
 	setup_run()
+	run_restarted.emit()
 	returned_to_overworld.emit()
+
+func build_peer_encounter() -> EncounterData:
+	var enc := EncounterData.new()
+	enc.encounter_name = "Peer Warrior"
+	enc.leader = _place(KNIGHT_DATA, Vector2i(5, 1))
+	enc.deck = _mix({
+		QUICK_STRIKE_CARD: 3,
+		ARROW_CARD: 2,
+	})
+	return enc
+
 
 func _duplicate_sides(sides: Array[SideUpgrade]) -> Array[SideUpgrade]:
 	var out: Array[SideUpgrade] = []

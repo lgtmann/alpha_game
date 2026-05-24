@@ -1,11 +1,10 @@
-[gd_resource type="Resource" script_class="CardData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://efcatk24o8dm"]
 
-[ext_resource type="Script" path="res://scripts/card_data.gd" id="1"]
-[ext_resource type="Script" path="res://effects/area_terrain_effect.gd" id="2"]
+[ext_resource type="Script" uid="uid://djyjwu1bdfjv7" path="res://scripts/card_data.gd" id="1"]
+[ext_resource type="Script" uid="uid://d3k3cvlvpfs2x" path="res://effects/area_terrain_effect.gd" id="2"]
 
 [sub_resource type="Resource" id="effect"]
 script = ExtResource("2")
-terrain_id = 1
 
 [resource]
 script = ExtResource("1")

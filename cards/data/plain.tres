@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="CardData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://dodpecxfff02m"]
 
-[ext_resource type="Script" path="res://scripts/card_data.gd" id="1"]
-[ext_resource type="Script" path="res://effects/place_terrain_effect.gd" id="2"]
+[ext_resource type="Script" uid="uid://djyjwu1bdfjv7" path="res://scripts/card_data.gd" id="1"]
+[ext_resource type="Script" uid="uid://bpnh03oas8byq" path="res://effects/place_terrain_effect.gd" id="2"]
 
 [sub_resource type="Resource" id="effect"]
 script = ExtResource("2")
@@ -11,5 +11,4 @@ terrain_id = 0
 script = ExtResource("1")
 card_name = "Plain"
 description = "Reset a tile to plains."
-cost = 1
 effect = SubResource("effect")

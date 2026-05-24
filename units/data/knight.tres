@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="UnitData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://y1h8pp5kd50m"]
 
-[ext_resource type="Script" path="res://scripts/unit_data.gd" id="1"]
+[ext_resource type="Script" uid="uid://ui75ekpfjijx" path="res://scripts/unit_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/leader_ability.gd" id="1_e0wir"]
+[ext_resource type="Script" path="res://scripts/side_upgrade.gd" id="3_703ut"]
 
 [resource]
 script = ExtResource("1")
@@ -9,5 +11,4 @@ atk = 3
 max_hp = 3
 terrain_affinity = 0
 affinity_bonus = 2
-is_deck_leader = false
 speed = 2

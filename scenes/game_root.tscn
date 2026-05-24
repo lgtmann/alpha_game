@@ -1,9 +1,12 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/game_root.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/main.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/overworld.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/shop_screen.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/dialogue_box.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/intro_screen.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/title_screen.tscn" id="7"]
 
 [node name="GameRoot" type="Node"]
 script = ExtResource("1")
@@ -16,6 +19,7 @@ visible = false
 [node name="Main" parent="BattleLayer" instance=ExtResource("2")]
 
 [node name="OverworldLayer" type="Node2D" parent="."]
+visible = false
 
 [node name="Overworld" parent="OverworldLayer" instance=ExtResource("3")]
 
@@ -25,3 +29,24 @@ follow_viewport = false
 visible = false
 
 [node name="ShopScreen" parent="ShopLayer" instance=ExtResource("4")]
+
+[node name="DialogueLayer" type="CanvasLayer" parent="."]
+layer = 12
+follow_viewport = false
+visible = false
+
+[node name="DialogueBox" parent="DialogueLayer" instance=ExtResource("5")]
+
+[node name="IntroLayer" type="CanvasLayer" parent="."]
+layer = 13
+follow_viewport = false
+visible = false
+
+[node name="IntroScreen" parent="IntroLayer" instance=ExtResource("6")]
+
+[node name="TitleLayer" type="CanvasLayer" parent="."]
+layer = 14
+follow_viewport = false
+visible = true
+
+[node name="TitleScreen" parent="TitleLayer" instance=ExtResource("7")]

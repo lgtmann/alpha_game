@@ -4,6 +4,7 @@ extends Node2D
 signal battle_requested(enc_idx: int)
 signal door_requested(dest_level_id: String)
 signal shop_requested
+signal dialogue_requested(pw: OverworldPeerWarrior)
 
 # ── Two-layer tilemap ──────────────────────────────────────────────────────
 # TileMapFloor  (z=-2): paint ANY tile here  → the cell is walkable floor.
@@ -23,16 +24,50 @@ var _level_data: LevelData = null
 var _player: OverworldPlayer = null
 var _npcs: Array[OverworldNpc] = []
 var _salesmen: Array[OverworldSalesman] = []
+var _peer_warriors: Array[OverworldPeerWarrior] = []
 var _run_state: RunState = null
 var _move_timer: float = 0.0
+var _bones: Array[OverworldBones] = []
+var _vats:  Array[OverworldVat]   = []
+
+var current_level_id: String:
+	get:
+		return _level_data.level_id if _level_data != null else ""
+
+var player_tile_pos: Vector2i:
+	get:
+		return _player.tile_pos if _player != null else Vector2i.ZERO
 
 
 func _ready() -> void:
 	_level_data = Level0.create()
+	_paint_level()
 	_player = OverworldPlayer.new()
 	_player.tile_pos = _level_data.player_spawn
 	add_child(_player)
+	_spawn_vats()
 	_spawn_salesmen()
+	_spawn_peer_warriors()
+
+
+func _paint_level() -> void:
+	if _floor_map == null or _level_data == null:
+		return
+	_floor_map.clear()
+	for rect: Rect2i in _level_data.floor_rects:
+		for row in range(rect.position.y, rect.position.y + rect.size.y):
+			for col in range(rect.position.x, rect.position.x + rect.size.x):
+				_floor_map.set_cell(Vector2i(col, row), 0, Vector2i(0, 0))
+
+
+func _spawn_vats() -> void:
+	if _level_data == null:
+		return
+	for def: Dictionary in _level_data.vat_defs:
+		var vat := OverworldVat.new()
+		add_child(vat)
+		vat.setup(def["pos"], def.get("type", 0))
+		_vats.append(vat)
 
 
 func _spawn_salesmen() -> void:
@@ -43,6 +78,16 @@ func _spawn_salesmen() -> void:
 		add_child(s)
 		s.setup(def["pos"], def["name"])
 		_salesmen.append(s)
+
+
+func _spawn_peer_warriors() -> void:
+	if _level_data == null:
+		return
+	for def: Dictionary in _level_data.peer_warrior_defs:
+		var pw := OverworldPeerWarrior.new()
+		add_child(pw)
+		pw.setup(def["pos"], def["name"])
+		_peer_warriors.append(pw)
 
 
 func initialize(rs: RunState) -> void:
@@ -66,6 +111,18 @@ func refresh_npcs() -> void:
 		if def["enc_idx"] < _run_state.encounter_index:
 			npc.mark_defeated()
 		_npcs.append(npc)
+
+
+func spawn_death_markers(death_positions: Array[Vector2i]) -> void:
+	for b: OverworldBones in _bones:
+		if is_instance_valid(b):
+			b.queue_free()
+	_bones.clear()
+	for tp: Vector2i in death_positions:
+		var bone := OverworldBones.new()
+		add_child(bone)
+		bone.setup(tp)
+		_bones.append(bone)
 
 
 func _process(delta: float) -> void:
@@ -110,6 +167,13 @@ func _try_interact(tile: Vector2i) -> void:
 		if is_instance_valid(s) and s.tile_pos == tile:
 			shop_requested.emit()
 			return
+	# Peer warrior check — opens dialogue instead of jumping straight to battle.
+	for pw: OverworldPeerWarrior in _peer_warriors:
+		if not is_instance_valid(pw) or pw.defeated:
+			continue
+		if pw.tile_pos == tile:
+			dialogue_requested.emit(pw)
+			return
 	# Enemy NPC check.
 	if _run_state == null:
 		return
@@ -139,5 +203,8 @@ func _is_walkable(tile: Vector2i) -> bool:
 			return false
 	for s: OverworldSalesman in _salesmen:
 		if is_instance_valid(s) and s.tile_pos == tile:
+			return false
+	for pw: OverworldPeerWarrior in _peer_warriors:
+		if is_instance_valid(pw) and not pw.defeated and pw.tile_pos == tile:
 			return false
 	return true

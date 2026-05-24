@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://cfknotx4mbxx4"]
 
-[ext_resource type="Script" path="res://scripts/card_data.gd" id="1"]
-[ext_resource type="Script" path="res://effects/spawn_unit_effect.gd" id="2"]
-[ext_resource type="Resource" path="res://units/data/knight.tres" id="3"]
+[ext_resource type="Script" uid="uid://djyjwu1bdfjv7" path="res://scripts/card_data.gd" id="1"]
+[ext_resource type="Script" uid="uid://h2qhxho15hj6" path="res://effects/spawn_unit_effect.gd" id="2"]
+[ext_resource type="Resource" uid="uid://y1h8pp5kd50m" path="res://units/data/knight.tres" id="3"]
 
 [sub_resource type="Resource" id="effect"]
 script = ExtResource("2")
